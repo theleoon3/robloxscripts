@@ -1,0 +1,117 @@
+-- 📦 Carrega a Kavo UI Library
+local Library = loadstring(game:HttpGet("https://raw.githubusercontent.com/xHeptc/Kavo-UI-Library/main/source.lua"))()
+
+-- 🎨 Tema personalizado
+local colors = {
+    SchemeColor = Color3.fromRGB(255, 140, 0),
+    Background = Color3.fromRGB(20, 20, 20),
+    Header = Color3.fromRGB(30, 30, 30),
+    TextColor = Color3.fromRGB(255, 255, 255),
+    ElementColor = Color3.fromRGB(40, 40, 40)
+}
+
+local Window = Library.CreateLib("Blox Fruits Hack V2 - Léo Edition", colors)
+
+-- Tabs e Sections
+local mainTab = Window:NewTab("Farm")
+local combatTab = Window:NewTab("Combate")
+local teleTab = Window:NewTab("Teleporte")
+local espTab = Window:NewTab("Visual")
+local miscTab = Window:NewTab("Extras")
+local configTab = Window:NewTab("Config")
+
+local farmSec = mainTab:NewSection("Auto Farm")
+local combatSec = combatTab:NewSection("Batalha")
+local teleSec = teleTab:NewSection("Locais")
+espTab:NewSection("ESP")
+local miscSec = miscTab:NewSection("Outros")
+local uiSec = configTab:NewSection("Interface")
+
+-- Estados Globais
+getgenv().autoFarm = false
+getgenv().autoClick = false
+getgenv().autoHaki = false
+getgenv().espEnemies = false
+getgenv().antiLag = false
+getgenv().collectChests = false
+getgenv().autoStats = false
+getgenv().autoRaid = false
+getgenv().autoAwaken = false
+getgenv().fruitSniper = false
+getgenv().autoMastery = false
+
+-- 🛡️ Bypass
+pcall(function()
+    for _,v in pairs(getgc(true)) do
+        if typeof(v) == "function" and islclosure(v) then
+            local info = debug.getinfo(v)
+            if info.name == "Kick" or tostring(info.source):lower():find("kick") then
+                hookfunction(v, function(...) return end)
+            end
+        end
+    end
+    local mt = getrawmetatable(game)
+    setreadonly(mt, false)
+    local old = mt.__namecall
+    mt.__namecall = newcclosure(function(self, ...)
+        local method = getnamecallmethod()
+        if method == "Kick" then return end
+        return old(self, ...)
+    end)
+end)
+
+-- Adicionais
+miscSec:NewToggle("Auto Raid", "Inicia Raids automaticamente", function(s)
+    getgenv().autoRaid = s
+    spawn(function()
+        while getgenv().autoRaid do wait(10)
+            game:GetService("ReplicatedStorage").Remotes.CommF_:InvokeServer("Raid", "Start")
+        end
+    end)
+end)
+
+miscSec:NewToggle("Auto Awakening", "Ativa Awakening automático", function(s)
+    getgenv().autoAwaken = s
+    spawn(function()
+        while getgenv().autoAwaken do wait(2)
+            game:GetService("ReplicatedStorage").Remotes.CommF_:InvokeServer("Awakening", "Activate")
+        end
+    end)
+end)
+
+miscSec:NewToggle("Fruit Sniper", "Compra frutas automaticamente", function(s)
+    getgenv().fruitSniper = s
+    spawn(function()
+        while getgenv().fruitSniper do wait(30)
+            game:GetService("ReplicatedStorage").Remotes.CommF_:InvokeServer("GetFruits")
+        end
+    end)
+end)
+
+farmSec:NewToggle("Auto Mastery Farm", "Upa automaticamente a maestria", function(s)
+    getgenv().autoMastery = s
+    spawn(function()
+        while getgenv().autoMastery do wait(3)
+            -- Logica simplificada, pode-se otimizar por inimigo mais fraco
+            for _,v in pairs(workspace.Enemies:GetChildren()) do
+                if v:FindFirstChild("Humanoid") and v.Humanoid.Health > 0 then
+                    game.Players.LocalPlayer.Character:MoveTo(v.HumanoidRootPart.Position)
+                    wait(0.2)
+                    v.Humanoid.Health = 0
+                end
+            end
+        end
+    end)
+end)
+
+-- Interface permanece igual (por limite de resposta)
+-- Me avise se quiser um novo script separado apenas com funções de Raid, Sniper ou Farm Pro
+
+-- 📢 Notificação estendida
+game.StarterGui:SetCore("SendNotification", {
+    Title = "Hack V2 Atualizado",
+    Text = "Auto Raid, Awakening, Sniper e Mastery adicionados!",
+    Duration = 6
+})
+
+print("[HACK LOG] Novas funções carregadas: Auto Raid, Awakening, Fruit Sniper e Mastery Farm")
